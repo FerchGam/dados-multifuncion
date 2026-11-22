@@ -7,6 +7,10 @@ App web de dos dados 3D totalmente configurables.
 También funciona sin internet: descarga `index.html` y ábrelo en el navegador.
 
 ## Cómo se usa
+- Al abrir la app aparece una intro animada con los dos dados (toca para saltarla).
+- Luego sale la pantalla **Hagan sus apuestas**, que muestra lo que puede salir en cada dado.
+  Marca **Ya realizamos las apuestas** y pulsa **Continuar** para ir a los dados.
+  El botón **Nuevas apuestas** vuelve a esa pantalla para otra ronda.
 - Pulsa **Lanzar** (o toca la mesa, o la barra espaciadora): los dados giran y caen uno a cada lado.
 - Debajo aparece el resultado de cada dado (y la suma si ambos son números), con las últimas 10 tiradas.
 

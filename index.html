@@ -39,6 +39,7 @@
 }
 
 * { box-sizing: border-box; }
+[hidden] { display: none !important; }
 body {
   margin: 0;
   background: var(--bg);
@@ -234,16 +235,117 @@ dialog::backdrop { background: rgba(8,12,16,.5); }
   max-width: calc(100% - 32px); z-index: 50;
 }
 
+/* Pantallas de inicio: intro animada y apuestas */
+html.locked, html.locked body { overflow: hidden; }
+.screen {
+  position: fixed; inset: 0; z-index: 40;
+  display: grid; place-items: center; align-content: center; gap: 22px;
+  overflow-y: auto;
+  padding-block: calc(24px + env(safe-area-inset-top, 0px)) calc(24px + env(safe-area-inset-bottom, 0px));
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+  transition: opacity .45s ease;
+}
+.screen.out { opacity: 0; pointer-events: none; }
+.splash {
+  --s: clamp(84px, 24vw, 128px);
+  color: #ffffff; cursor: pointer; text-align: center;
+  background:
+    radial-gradient(rgba(255,255,255,.05) 1px, transparent 1.5px) 0 0 / 5px 5px,
+    radial-gradient(120% 90% at 50% 35%, var(--mat-a), var(--mat-b) 70%, var(--mat-rim));
+}
+.splash-stage { display: flex; gap: calc(var(--s) * .45); perspective: 900px; padding-top: calc(var(--s) * .3); }
+.sp-die { width: var(--s); height: var(--s); transform-style: preserve-3d; animation: sp-drop 1.15s cubic-bezier(.3,.75,.4,1) both; }
+.sp-die + .sp-die { animation-delay: .18s; }
+.sp-cube { animation: sp-tumble-a 1.5s cubic-bezier(.2,.7,.3,1) both; }
+.sp-die + .sp-die .sp-cube { animation-name: sp-tumble-b; animation-delay: .18s; }
+@keyframes sp-drop {
+  0% { transform: translateY(-75vh); }
+  62% { transform: translateY(0); }
+  76% { transform: translateY(calc(var(--s) * -.28)); }
+  88% { transform: translateY(0); }
+  94% { transform: translateY(calc(var(--s) * -.06)); }
+  100% { transform: translateY(0); }
+}
+@keyframes sp-tumble-a {
+  from { transform: rotateZ(-200deg) rotateX(620deg) rotateY(540deg); }
+  to { transform: rotateZ(-6deg) rotateX(-14deg) rotateY(26deg); }
+}
+@keyframes sp-tumble-b {
+  from { transform: rotateZ(220deg) rotateX(-560deg) rotateY(-620deg); }
+  to { transform: rotateZ(5deg) rotateX(-14deg) rotateY(-26deg); }
+}
+.splash-title {
+  margin: 0; display: grid; justify-items: center;
+  font: 800 clamp(40px, 11vw, 76px)/.92 var(--display); letter-spacing: -0.03em;
+  animation: sp-rise .7s 1.1s cubic-bezier(.2,.8,.3,1) both;
+}
+.splash-title span + span { font-size: .62em; letter-spacing: .02em; color: #ffd76a; }
+.splash-sub { margin: 0; color: rgba(255,255,255,.75); animation: sp-rise .7s 1.35s cubic-bezier(.2,.8,.3,1) both; }
+.splash-skip { position: absolute; bottom: calc(18px + env(safe-area-inset-bottom, 0px)); left: 0; right: 0; text-align: center; font-size: 13px; color: rgba(255,255,255,.5); }
+@keyframes sp-rise { from { opacity: 0; transform: translateY(18px); } to { opacity: 1; transform: none; } }
+
+.bets { background: var(--bg); }
+.bets-card {
+  width: min(520px, 100%);
+  display: grid; gap: 16px;
+  background: var(--surface); border: 1px solid var(--line); border-radius: 24px;
+  padding: clamp(20px, 5vw, 32px);
+  box-shadow: 0 18px 50px rgba(0,0,0,.12);
+}
+.eyebrow { margin: 0; font-size: 12px; font-weight: 600; letter-spacing: .12em; text-transform: uppercase; color: var(--accent); }
+.bets-card h2 { margin: -6px 0 0; font: 800 clamp(32px, 8vw, 46px)/1 var(--display); letter-spacing: -0.02em; text-wrap: balance; }
+.bets-card > p { margin: 0; color: var(--muted); }
+.odds { display: grid; gap: 10px; margin: 0; padding: 14px; border-radius: 16px; background: var(--bg); }
+.odds div { display: grid; gap: 6px; min-width: 0; }
+.odds dt { font-size: 12px; text-transform: uppercase; letter-spacing: .08em; color: var(--muted); }
+.odds dd { margin: 0; display: flex; flex-wrap: wrap; gap: 6px; }
+.odds dd span { border: 1px solid var(--line); background: var(--surface); border-radius: 999px; padding: 2px 10px; font-weight: 600; font-size: 14px; overflow-wrap: anywhere; }
+.odds .hint-odds { font-size: 13px; color: var(--muted); }
+.confirm {
+  display: flex; align-items: center; gap: 12px; cursor: pointer;
+  border: 2px solid var(--line); border-radius: 16px; padding: 14px 16px;
+  font: 700 18px/1.2 var(--display);
+}
+.confirm input { width: 24px; height: 24px; accent-color: var(--accent); flex: none; }
+.confirm:has(input:checked) { border-color: var(--accent); background: color-mix(in srgb, var(--accent) 10%, transparent); }
+.bets-actions { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; }
+.bets-actions .roll { flex: 1 1 200px; }
+
 @media (max-width: 520px) {
   .roll { flex: 1 1 100%; }
   .sheet { width: 100%; }
 }
 @media (prefers-reduced-motion: reduce) {
   .roll { transition: none; }
+  .sp-die, .sp-cube, .splash-title, .splash-sub { animation-duration: .01s !important; animation-delay: 0s !important; }
 }
 </style>
 </head>
 <body>
+<section class="screen splash" id="splash" aria-label="Dados Multifunción">
+  <div class="splash-stage" aria-hidden="true">
+    <div class="sp-die"><div class="cube sp-cube" id="spcube0"></div></div>
+    <div class="sp-die"><div class="cube sp-cube" id="spcube1"></div></div>
+  </div>
+  <h1 class="splash-title"><span>Dados</span><span>Multifunción</span></h1>
+  <p class="splash-sub">Números, palabras y tapices: tú decides cada cara.</p>
+  <div class="splash-skip">Toca para continuar</div>
+</section>
+
+<section class="screen bets" id="bets" hidden aria-labelledby="bets-title">
+  <div class="bets-card">
+    <p class="eyebrow">Antes de lanzar</p>
+    <h2 id="bets-title">Hagan sus apuestas</h2>
+    <p>Cada jugador elige qué cree que va a salir. Cuando todos hayan apostado, marquen la casilla y continúen.</p>
+    <dl class="odds" id="odds"></dl>
+    <label class="confirm" for="bets-done"><input type="checkbox" id="bets-done"> Ya realizamos las apuestas</label>
+    <div class="bets-actions">
+      <button type="button" class="roll" id="bets-go" disabled>Continuar</button>
+      <button type="button" class="ghost" id="bets-config">Configurar dados</button>
+    </div>
+  </div>
+</section>
 <div class="app">
   <header class="top">
     <div>
@@ -251,6 +353,7 @@ dialog::backdrop { background: rgba(8,12,16,.5); }
       <p>Dos dados de seis caras. Tú decides qué lleva cada cara y con qué tapiz.</p>
     </div>
     <div class="top-actions">
+      <button type="button" id="new-bets" class="ghost">Nuevas apuestas</button>
       <button type="button" id="sound" class="ghost" aria-pressed="true">Sonido</button>
       <button type="button" id="open-config" class="ghost">Configurar dados</button>
     </div>
@@ -412,7 +515,10 @@ dialog::backdrop { background: rgba(8,12,16,.5); }
   let lastResult = null;
 
   function buildCube(d) {
-    const cube = cubes[d];
+    fillCube(cubes[d], d);
+    applyRot(d);
+  }
+  function fillCube(cube, d) {
     cube.innerHTML = "";
     const dc = state.dice[d];
     // Planos interiores para que no se vea hueco en las esquinas redondeadas.
@@ -430,7 +536,6 @@ dialog::backdrop { background: rgba(8,12,16,.5); }
       paintFace(f, dc, i);
       cube.appendChild(f);
     }
-    applyRot(d);
   }
   const rotStr = (r) => `rotateZ(${r.z}deg) rotateX(${r.x}deg) rotateY(${r.y}deg)`;
   function applyRot(d) { cubes[d].style.transform = rotStr(rot[d]); }
@@ -734,6 +839,7 @@ dialog::backdrop { background: rgba(8,12,16,.5); }
   $("close-config").addEventListener("click", closeDlg);
   dlg.addEventListener("click", (e) => { if (e.target === dlg) closeDlg(); });
   dlg.addEventListener("close", () => {
+    if (!$("bets").hidden) renderOdds();
     if (lastResult) { // Refresca el texto del resultado si cambiaste las caras
       const h = $("history"); const first = h.firstChild; showResult(lastResult); if (first) first.remove();
     }
@@ -743,7 +849,7 @@ dialog::backdrop { background: rgba(8,12,16,.5); }
   $("roll").addEventListener("click", roll);
   $("arena").addEventListener("click", roll);
   document.addEventListener("keydown", (e) => {
-    if (e.code === "Space" && !dlg.open && !(e.target instanceof HTMLInputElement) && e.target.tagName !== "BUTTON") {
+    if (e.code === "Space" && !dlg.open && !screenShown && !(e.target instanceof HTMLInputElement) && e.target.tagName !== "BUTTON") {
       e.preventDefault(); roll();
     }
   });
@@ -755,6 +861,42 @@ dialog::backdrop { background: rgba(8,12,16,.5); }
   window.addEventListener("resize", layoutRest);
   buildCube(0); buildCube(1);
   layoutRest();
+
+  // ---------- Intro y apuestas ----------
+  let screenShown = "splash";
+  function showScreen(id) {
+    screenShown = id;
+    ["splash", "bets"].forEach((s) => { $(s).hidden = s !== id; $(s).classList.remove("out"); });
+    document.documentElement.classList.toggle("locked", !!id);
+    if (id === "bets") {
+      $("bets-done").checked = false;
+      $("bets-go").disabled = true;
+      renderOdds();
+    }
+    if (!id) { layoutRest(); $("roll").focus(); }
+  }
+  function leave(id, next) {
+    if (screenShown !== id) return;
+    $(id).classList.add("out");
+    screenShown = next || "";
+    setTimeout(() => showScreen(next), reduceMotion ? 0 : 450);
+  }
+  function renderOdds() {
+    $("odds").innerHTML = [0, 1].map((d) => {
+      const vals = state.dice[d].faces.map((v, i) => String(v).trim() || `cara ${i + 1}`);
+      return `<div><dt>Dado ${d + 1} puede sacar</dt><dd>${vals.map((v) => `<span>${esc(v)}</span>`).join("")}</dd></div>`;
+    }).join("");
+  }
+
+  fillCube($("spcube0"), 0);
+  fillCube($("spcube1"), 1);
+  document.documentElement.classList.add("locked");
+  const splashTimer = setTimeout(() => leave("splash", "bets"), reduceMotion ? 900 : 3000);
+  $("splash").addEventListener("click", () => { clearTimeout(splashTimer); leave("splash", "bets"); });
+  $("bets-done").addEventListener("change", (e) => { $("bets-go").disabled = !e.target.checked; });
+  $("bets-go").addEventListener("click", () => leave("bets", ""));
+  $("bets-config").addEventListener("click", () => $("open-config").click());
+  $("new-bets").addEventListener("click", () => showScreen("bets"));
 })();
 </script>
 </body>
