@@ -309,6 +309,8 @@ html.locked, html.locked body { overflow: hidden; }
 .bd-die + .bd-die .bd-cube { animation-name: bd-spin-b; animation-duration: 12s; }
 @keyframes bd-spin { from { transform: rotateX(-20deg) rotateY(0deg); } to { transform: rotateX(-20deg) rotateY(360deg); } }
 @keyframes bd-spin-b { from { transform: rotateX(-20deg) rotateY(360deg); } to { transform: rotateX(-20deg) rotateY(0deg); } }
+.credits { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 4px 16px; padding-top: 14px; border-top: 1px solid var(--line); font-size: 13px; color: var(--muted); }
+.credits b { color: var(--ink); font-weight: 600; }
 .legal { display: flex; flex-wrap: wrap; gap: 6px 16px; font-size: 13px; }
 .legal a { color: var(--muted); }
 .confirm {
@@ -340,7 +342,7 @@ html.locked, html.locked body { overflow: hidden; }
   </div>
   <h1 class="splash-title"><span>Dados</span><span>Multifunción</span></h1>
   <p class="splash-sub">Números, palabras y tapices: tú decides cada cara.</p>
-  <div class="splash-skip">Toca para continuar</div>
+  <div class="splash-skip">Creado por FerchGam · Toca para continuar</div>
 </section>
 
 <section class="screen bets" id="bets" hidden aria-labelledby="bets-title">
@@ -357,6 +359,7 @@ html.locked, html.locked body { overflow: hidden; }
       <button type="button" class="roll" id="bets-go" disabled>Continuar</button>
       <button type="button" class="ghost" id="bets-config">Configurar dados</button>
     </div>
+    <p class="credits" style="display:block;border-top:0;padding-top:0;margin:0">Dados Multifunción · Creado por <b>FerchGam</b> · © 2026</p>
   </div>
 </section>
 <div class="app">
@@ -386,6 +389,11 @@ html.locked, html.locked body { overflow: hidden; }
     <div class="result" id="result" aria-live="polite"><span class="waiting">Pulsa Lanzar para tirar los dos dados.</span></div>
   </div>
   <ol class="history" id="history" aria-label="Últimas tiradas"></ol>
+
+  <footer class="credits">
+    <span>Creado por <b>FerchGam</b></span>
+    <span>© 2026 FerchGam. Todos los derechos reservados.</span>
+  </footer>
 </div>
 
 <dialog id="config" aria-labelledby="config-title">
@@ -529,12 +537,11 @@ html.locked, html.locked body { overflow: hidden; }
   let lastResult = null;
 
   function buildCube(d) {
-    fillCube(cubes[d], d);
+    fillCube(cubes[d], state.dice[d]);
     applyRot(d);
   }
-  function fillCube(cube, d) {
+  function fillCube(cube, dc) {
     cube.innerHTML = "";
-    const dc = state.dice[d];
     // Planos interiores para que no se vea hueco en las esquinas redondeadas.
     ["rotateY(0deg)", "rotateY(90deg)", "rotateX(90deg)"].forEach((tf) => {
       const c = document.createElement("div");
@@ -764,7 +771,7 @@ html.locked, html.locked body { overflow: hidden; }
     let out = "";
     if (c.privacyUrl) out += `<a href="${esc(c.privacyUrl)}" target="_blank" rel="noopener">Política de privacidad</a>`;
     if (store) out += `<a href="${esc(store)}" target="_blank" rel="noopener">Califica la app</a>`;
-    return out + `<span style="color:var(--muted)">Dados Multifunción</span>`;
+    return out + `<span style="color:var(--muted)">Dados Multifunción · Creado por FerchGam · © 2026 FerchGam. Todos los derechos reservados.</span>`;
   }
 
   function refreshPreviews() {
@@ -912,13 +919,23 @@ html.locked, html.locked body { overflow: hidden; }
     screenShown = next || "";
     setTimeout(() => showScreen(next), reduceMotion ? 0 : 450);
   }
+  // Dados decorativos al azar para la intro y las apuestas: nunca muestran la configuración real.
+  const SYMBOLS = ["★", "♥", "♦", "♣", "♠", "☀", "☾", "✿", "♪", "✦", "☘", "⚑"];
+  function shuffle(a) { a = a.slice(); for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; } return a; }
+  function randomDie() {
+    return {
+      faces: shuffle(SYMBOLS).slice(0, 6), pips: false, ink: null,
+      tapizMode: "per", tapizAll: "marfil",
+      tapizFaces: shuffle(PRESET_KEYS).slice(0, 6),
+    };
+  }
   function renderBetDice() {
-    fillCube($("bdcube0"), 0);
-    fillCube($("bdcube1"), 1);
+    fillCube($("bdcube0"), randomDie());
+    fillCube($("bdcube1"), randomDie());
   }
 
-  fillCube($("spcube0"), 0);
-  fillCube($("spcube1"), 1);
+  fillCube($("spcube0"), randomDie());
+  fillCube($("spcube1"), randomDie());
   document.documentElement.classList.add("locked");
   const splashTimer = setTimeout(() => leave("splash", "bets"), reduceMotion ? 900 : 3000);
   $("splash").addEventListener("click", () => { clearTimeout(splashTimer); leave("splash", "bets"); });

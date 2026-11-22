@@ -10,7 +10,7 @@ El código de la app está en `www/`. Es una app web que también se empaqueta c
 
 ## Cómo se usa
 - Al abrir la app aparece una intro animada con los dos dados (toca para saltarla).
-- Luego sale la pantalla **Hagan sus apuestas**, con los dos dados girando de referencia.
+- Luego sale la pantalla **Hagan sus apuestas**, con dos dados decorativos girando (diseños al azar; no muestran lo configurado).
   Marca **Ya realizamos las apuestas** y pulsa **Continuar** para ir a los dados.
   El botón **Nuevas apuestas** vuelve a esa pantalla para otra ronda.
 - Pulsa **Lanzar** (o toca la mesa, o la barra espaciadora): los dados giran y caen uno a cada lado.
@@ -26,3 +26,8 @@ Cada dado se configura por separado, en su pestaña **Dado 1** / **Dado 2**:
 - Color del texto, copiar un dado al otro y restablecer.
 
 La configuración se guarda en el navegador.
+
+## Créditos
+Creado por **FerchGam**.
+
+© 2026 FerchGam. Todos los derechos reservados. Ver [LICENSE](LICENSE).
