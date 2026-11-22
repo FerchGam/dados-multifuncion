@@ -1,0 +1,65 @@
+name: Compilar Android
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+jobs:
+  android:
+    runs-on: ubuntu-latest
+    env:
+      HAS_KEYSTORE: ${{ secrets.ANDROID_KEYSTORE_BASE64 != '' }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 21
+
+      - name: Instalar dependencias
+        run: npm ci
+
+      - name: Copiar la app web al proyecto Android
+        run: npx cap sync android
+
+      - name: Compilar APK de prueba (para instalar en tu teléfono)
+        working-directory: android
+        run: chmod +x gradlew && ./gradlew assembleDebug --no-daemon
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: dados-multifuncion-apk-prueba
+          path: android/app/build/outputs/apk/debug/*.apk
+
+      # Solo se ejecuta cuando existan los secretos de la llave de firma.
+      - name: Preparar llave de firma
+        id: keystore
+        env:
+          ANDROID_KEYSTORE_BASE64: ${{ secrets.ANDROID_KEYSTORE_BASE64 }}
+        if: ${{ env.HAS_KEYSTORE == 'true' }}
+        run: |
+          echo "$ANDROID_KEYSTORE_BASE64" | base64 -d > "$RUNNER_TEMP/upload.jks"
+          echo "path=$RUNNER_TEMP/upload.jks" >> "$GITHUB_OUTPUT"
+
+      - name: Compilar AAB firmado (para subir a Google Play)
+        if: ${{ steps.keystore.outputs.path != '' }}
+        working-directory: android
+        env:
+          ANDROID_KEYSTORE_PATH: ${{ steps.keystore.outputs.path }}
+          ANDROID_KEYSTORE_PASSWORD: ${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
+          ANDROID_KEY_ALIAS: ${{ secrets.ANDROID_KEY_ALIAS }}
+          ANDROID_KEY_PASSWORD: ${{ secrets.ANDROID_KEY_PASSWORD }}
+        run: ./gradlew bundleRelease --no-daemon
+
+      - uses: actions/upload-artifact@v4
+        if: ${{ steps.keystore.outputs.path != '' }}
+        with:
+          name: dados-multifuncion-play-store-aab
+          path: android/app/build/outputs/bundle/release/*.aab

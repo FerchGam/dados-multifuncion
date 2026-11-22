@@ -1,0 +1,13 @@
+{
+  "appId": "com.ferchgam.dadosmultifuncion",
+  "appName": "Dados Multifunción",
+  "webDir": "www",
+  "android": {
+    "adjustMarginsForEdgeToEdge": "auto"
+  },
+  "plugins": {
+    "SplashScreen": {
+      "launchShowDuration": 0
+    }
+  }
+}
