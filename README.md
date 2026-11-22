@@ -1,6 +1,10 @@
 # Dados Multifunción
 
-App web de dos dados 3D totalmente configurables. No necesita instalar nada: abre `index.html` en el navegador.
+App web de dos dados 3D totalmente configurables.
+
+**Jugar ahora:** https://ferchgam.github.io/dados-multifuncion/
+
+También funciona sin internet: descarga `index.html` y ábrelo en el navegador.
 
 ## Cómo se usa
 - Pulsa **Lanzar** (o toca la mesa, o la barra espaciadora): los dados giran y caen uno a cada lado.
